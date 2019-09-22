@@ -73,12 +73,22 @@ int main(int argc, char* argv[])
 
     float distortionFactor = .05f;
     float riseFactor = .2f;
+    float p = 0.f;
+    float texSizeY = distortionMap.getSize().y;
+    float texSizeX = distortionMap.getSize().x;
+
+    sf::Vector2f lastPos;
+    sf::Vector2f deltaPos;
+    std::cout << texSizeX << std::endl;
+
 
     shader.setUniform("currentTexture", sf::Shader::CurrentTexture);
     shader.setUniform("distortionMapTexture", distortionMap);
     shader.setUniform("distortionFactor", distortionFactor);
 
     sf::Clock clock;
+
+
 
     while (true)
     {
@@ -93,6 +103,7 @@ int main(int argc, char* argv[])
 
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
 			player.move(0.2, 0.f);
+
 		}
         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
 			player.move(-0.2, 0.f);
@@ -103,7 +114,25 @@ int main(int argc, char* argv[])
         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
 			player.move(0.f, -0.2);
 		}
+        p = 0.f;
+        //-------- TESTS
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+            p = 0.5f;
+		}
 
+        
+        deltaPos.y += ViewBG.getCenter().y- lastPos.y;
+        deltaPos.x += ViewBG.getCenter().x- lastPos.x;
+
+        lastPos.y = ViewBG.getCenter().y;
+        lastPos.x = ViewBG.getCenter().x;
+        
+        float dy = deltaPos.y * (1.0/720.0);  //AH
+        float dx = deltaPos.x * (1.0/1280.0); // AH !!!!!
+
+        std::cout << dy << ";" << dx << std::endl;
+        shader.setUniform("yOffset", dy);
+        shader.setUniform("xOffset", dx);
 
         renderTexture.clear(sf::Color(255,0,255));
 
@@ -117,7 +146,9 @@ int main(int argc, char* argv[])
 
         window.clear();
         window.setView(ViewFinal);
+        
         window.draw(sprite, &shader);
+
         window.display();
     }
 }
